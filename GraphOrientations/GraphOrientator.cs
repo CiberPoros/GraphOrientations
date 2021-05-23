@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace GraphOrientations
 {
-    public class GraphOrientator
+    internal class GraphOrientator
     {
         public IEnumerable<int[]> Orient(int[] graph)
         {
             var codes = new HashSet<long>();
-            var substitutions = Utils.GetAllSubstitutions(graph.Length).ToArray();
+            var substitutions = Utils.EnumerateAllSubstitutions(graph.Length).ToArray();
 
             foreach (var orientedGraph in OrientInternal(graph))
             {
@@ -39,7 +39,7 @@ namespace GraphOrientations
             else
             {
                 var toMask = 1 << to;
-                int nextFrom = to == graph.Length - 1 ? from + 1 : from;
+                int nextFrom = to >= graph.Length - 1 ? from + 1 : from;
                 int nextTo = to == graph.Length - 1 ? nextFrom + 1 : to + 1;
 
                 if ((graph[from] & toMask) != 0)

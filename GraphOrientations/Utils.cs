@@ -4,34 +4,36 @@ using System.Linq;
 
 namespace GraphOrientations
 {
-    public static class Utils
+    internal static class Utils
     {
-        public static IEnumerable<int[]> GetAllSubstitutions(int n)
+        public static IEnumerable<int[]> EnumerateAllSubstitutions(int n)
         {
-            return GetAllSubstitutionsInternal(n, new int[n]);
-        }
+            var vertexNumbers = new int[n];
+            bool[] used = new bool[n];
 
-        public static IEnumerable<int[]> GetAllSubstitutionsInternal(int n, int[] substitution, int currentIndex = 0, int usedMask = 0)
-        {
-            for (int i = 0, iMask = 1; i < n; i++, iMask <<= 1)
+            return Enumerate(used, 0);
+
+            IEnumerable<int[]> Enumerate(bool[] used, int deep)
             {
-                if ((usedMask & iMask) != 0)
+                if (deep == n)
                 {
-                    continue;
+                    yield return vertexNumbers.ToArray();
                 }
 
-                substitution[currentIndex] = i;
-
-                if (i == n - 1)
+                for (int i = 0; i < n; i++)
                 {
-                    yield return substitution.ToArray();
-                }
-                else
-                {
-                    foreach (var val in GetAllSubstitutionsInternal(n, substitution, currentIndex + 1, usedMask | iMask))
+                    if (used[i])
                     {
-                        yield return val;
+                        continue;
                     }
+
+                    used[i] = true;
+                    vertexNumbers[deep] = i;
+
+                    foreach (var val in Enumerate(used, deep + 1))
+                        yield return val;
+
+                    used[i] = false;
                 }
             }
         }
@@ -44,13 +46,12 @@ namespace GraphOrientations
             {
                 for (int j = 0, jmask = 1; j < graph.Length; j++, jmask <<= 1)
                 {
-                    if ((result[i] & jmask) == 0)
+                    if ((graph[i] & jmask) == 0)
                     {
                         continue;
                     }
 
                     result[substitution[i]] |= 1 << substitution[j];
-                    result[substitution[j]] |= 1 << substitution[i];
                 }
             }
 
